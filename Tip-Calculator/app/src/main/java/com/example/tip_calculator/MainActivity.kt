@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +15,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tip_calculator.ui.theme.TipCalculatorTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,90 +52,131 @@ fun TipCalculatorApp() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(60.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text("Tip Calculator", style = MaterialTheme.typography.headlineMedium)
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Bill Amount:")
-            OutlinedTextField(
-                value = amountInput,
-                onValueChange = { amountInput = it },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.width(60.dp),
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Tip %:")
-            OutlinedTextField(
-                value = tipInput,
-                onValueChange = {
-                    tipInput = it.filter { ch -> ch.isDigit() } // optionally allow only digits
-                    tipInput.toFloatOrNull()?.let {
-                        tipPercent = it.coerceIn(0f, 100f)
-                    }
-                },
-                singleLine = true,
-                modifier = Modifier.width(60.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-            )
-        }
-
-        Slider(
-            value = tipPercent,
-            onValueChange = {
-                tipPercent = it
-                tipInput = it.toInt().toString()
-            },
-            valueRange = 0f..30f,
-            steps = 30,
-            modifier = Modifier.fillMaxWidth()
+        // Title
+        Text(
+            text = "Tip Calculator",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                .padding(12.dp)
         ) {
-            Text("Split by (people):")
-            OutlinedTextField(
-                value = splitByInput,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Bill Amount:")
+                OutlinedTextField(
+                    value = amountInput,
+                    onValueChange = { amountInput = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.width(80.dp),
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                .padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text("Tip %:")
+                OutlinedTextField(
+                    value = tipInput,
+                    onValueChange = {
+                        tipInput = it.filter { ch -> ch.isDigit() } // optionally allow only digits
+                        tipInput.toFloatOrNull()?.let {
+                            tipPercent = it.coerceIn(0f, 100f)
+                        }
+                    },
+                    singleLine = true,
+                    modifier = Modifier.width(80.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                )
+            }
+
+            Slider(
+                value = tipPercent,
                 onValueChange = {
-                    splitByInput = it.filter { ch -> ch.isDigit() } // optionally filter out non-digits
-                    splitByInput.toFloatOrNull()?.let { value ->
-                        splitBy = value.coerceIn(1f, 100f)
-                    }
+                    tipPercent = it
+                    tipInput = it.toInt().toString()
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.width(60.dp)
+                valueRange = 0f..30f,
+                steps = 30,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
-        Slider(
-            value = splitBy,
-            onValueChange = {
-                splitBy = it
-                splitByInput = it.toInt().toString()
-            },
-            valueRange = 1f..20f, // adjust as needed
-            steps = 19,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                .padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Split by (people):")
+                OutlinedTextField(
+                    value = splitByInput,
+                    onValueChange = {
+                        splitByInput = it.filter { ch -> ch.isDigit() }
+                        splitByInput.toFloatOrNull()?.let { value ->
+                            splitBy = value.coerceIn(1f, 100f)
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.width(80.dp)
+                )
+            }
+
+            Slider(
+                value = splitBy,
+                onValueChange = {
+                    splitBy = it
+                    splitByInput = it.toInt().toString()
+                },
+                valueRange = 1f..20f,
+                steps = 19,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
 
         Divider()
-
-        Text("Tip: $${"%.2f".format(tipAmount)}")
-        Text("Total: $${"%.2f".format(total)}")
-        Text("Per Person: $${"%.2f".format(perPerson)}")
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                .padding(12.dp)
+        ) {
+            Text("Tip: $${"%.2f".format(tipAmount)}")
+            Text("Total: $${"%.2f".format(total)}")
+            Text("Per Person: $${"%.2f".format(perPerson)}")
+        }
     }
 }
 
