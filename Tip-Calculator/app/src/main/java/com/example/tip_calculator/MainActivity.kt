@@ -20,6 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import kotlin.math.ceil
 import kotlin.math.floor
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +41,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TipCalculatorApp() {
     var amountInput by remember { mutableStateOf("") }
@@ -50,159 +59,203 @@ fun TipCalculatorApp() {
     var total = amount + tipAmount
     var perPerson = total / people
 
-    var roundedTotal by remember { mutableStateOf<Double?>(null) }
+    var displayedTip by remember { mutableStateOf(tipAmount) }
+    var displayedTotal by remember { mutableStateOf(total) }
+    var displayedPerPerson by remember { mutableStateOf(perPerson) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        // Title
-        Text(
-            text = "Tip Calculator",
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+    LaunchedEffect(tipAmount, total, perPerson) {
+        displayedTip = tipAmount
+        displayedTotal = total
+        displayedPerPerson = perPerson
+    }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp)) // Clip the corners
-                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
-                .padding(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Bill Amount:")
-                OutlinedTextField(
-                    value = amountInput,
-                    onValueChange = { amountInput = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.width(80.dp),
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp)) // Clip the corners
-                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
-                .padding(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text("Tip %:")
-                OutlinedTextField(
-                    value = tipInput,
-                    onValueChange = {
-                        tipInput = it.filter { ch -> ch.isDigit() } // optionally allow only digits
-                        tipInput.toFloatOrNull()?.let {
-                            tipPercent = it.coerceIn(0f, 100f)
-                        }
-                    },
-                    singleLine = true,
-                    modifier = Modifier.width(80.dp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                )
-            }
-
-            Slider(
-                value = tipPercent,
-                onValueChange = {
-                    tipPercent = it
-                    tipInput = it.toInt().toString()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Tip Calculator") },
+                actions = {
+                    IconButton(onClick = { /* TODO: Open Settings */ }) {
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+                    }
                 },
-                valueRange = 0f..30f,
-                steps = 30,
-                modifier = Modifier.fillMaxWidth()
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
             )
         }
-
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp)) // Clip the corners
-                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
-                .padding(12.dp)
+                .fillMaxSize()
+                .padding(innerPadding)  // respects TopAppBar height
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                    .padding(12.dp)
             ) {
-                Text("Split by (people):")
-                OutlinedTextField(
-                    value = splitByInput,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Bill Amount:")
+                    OutlinedTextField(
+                        value = amountInput,
+                        onValueChange = { amountInput = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.width(80.dp),
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                    .padding(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text("Tip %:")
+                    OutlinedTextField(
+                        value = tipInput,
+                        onValueChange = {
+                            tipInput = it.filter { ch -> ch.isDigit() } // optionally allow only digits
+                            tipInput.toFloatOrNull()?.let {
+                                tipPercent = it.coerceIn(0f, 100f)
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.width(80.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                }
+
+                Slider(
+                    value = tipPercent,
                     onValueChange = {
-                        splitByInput = it.filter { ch -> ch.isDigit() }
-                        splitByInput.toFloatOrNull()?.let { value ->
-                            splitBy = value.coerceIn(1f, 100f)
-                        }
+                        tipPercent = it
+                        tipInput = it.toInt().toString()
                     },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.width(80.dp)
+                    valueRange = 0f..30f,
+                    steps = 30,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            Slider(
-                value = splitBy,
-                onValueChange = {
-                    splitBy = it
-                    splitByInput = it.toInt().toString()
-                },
-                valueRange = 1f..20f,
-                steps = 19,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                    .padding(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Split by (people):")
+                    OutlinedTextField(
+                        value = splitByInput,
+                        onValueChange = {
+                            splitByInput = it.filter { ch -> ch.isDigit() }
+                            splitByInput.toFloatOrNull()?.let { value ->
+                                splitBy = value.coerceIn(1f, 100f)
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.width(80.dp)
+                    )
+                }
 
-
-        Divider()
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp)) // Clip the corners
-                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
-                .padding(12.dp)
-        ) {
-            Text("Tip: $${"%.2f".format(tipAmount)}")
-            Text("Total: $${"%.2f".format(total)}")
-            Text("Per Person: $${"%.2f".format(perPerson)}")
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(onClick = {
-                total = floor(total)
-                tipAmount = floor(tipAmount)
-                perPerson = floor(perPerson)
-            }) {
-                Text("Round Down")
+                Slider(
+                    value = splitBy,
+                    onValueChange = {
+                        splitBy = it
+                        splitByInput = it.toInt().toString()
+                    },
+                    valueRange = 1f..20f,
+                    steps = 19,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
-            Button(onClick = {
-                roundedTotal = ceil(total)
-                total = ceil(total)
-                tipAmount = ceil(tipAmount)
-                perPerson = ceil(perPerson)
-            }) {
-                Text("Round Up")
+
+            Divider()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)) // Clip the corners
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp)) // Rounded border
+                    .padding(12.dp)
+            ) {
+                Text("Tip: $${"%.2f".format(displayedTip)}")
+                Text("Total: $${"%.2f".format(displayedTotal)}")
+                Text("Per Person: $${"%.2f".format(displayedPerPerson)}")
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { /* Round Down Logic */ },
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF3F51B5), // custom indigo
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 12.dp
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp)
+                ) {
+                    Text("Round Down", style = MaterialTheme.typography.bodyLarge)
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Button(
+                    onClick = { /* Round Up Logic */ },
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF3F51B5),
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 12.dp
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp)
+                ) {
+                    Text("Round Up", style = MaterialTheme.typography.bodyLarge)
+                }
             }
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable
