@@ -1,4 +1,4 @@
-package com.example.tip_calculator
+package com.simpleappsinc.tip_calculator
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,6 +18,8 @@ import com.example.tip_calculator.ui.theme.TipCalculatorTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import kotlin.math.ceil
+import kotlin.math.floor
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +36,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TipCalculatorApp() {
     var amountInput by remember { mutableStateOf("") }
-    //var splitByInput by remember { mutableStateOf("1") }
 
     val amount = amountInput.toDoubleOrNull() ?: 0.0
     var tipInput by remember { mutableStateOf("15") }
@@ -45,9 +46,11 @@ fun TipCalculatorApp() {
 
     val people = splitByInput.toIntOrNull()?.coerceAtLeast(1) ?: 1
 
-    val tipAmount = amount * tipPercent / 100
-    val total = amount + tipAmount
-    val perPerson = total / people
+    var tipAmount = amount * tipPercent / 100
+    var total = amount + tipAmount
+    var perPerson = total / people
+
+    var roundedTotal by remember { mutableStateOf<Double?>(null) }
 
     Column(
         modifier = Modifier
@@ -176,6 +179,27 @@ fun TipCalculatorApp() {
             Text("Tip: $${"%.2f".format(tipAmount)}")
             Text("Total: $${"%.2f".format(total)}")
             Text("Per Person: $${"%.2f".format(perPerson)}")
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = {
+                total = floor(total)
+                tipAmount = floor(tipAmount)
+                perPerson = floor(perPerson)
+            }) {
+                Text("Round Down")
+            }
+
+            Button(onClick = {
+                roundedTotal = ceil(total)
+                total = ceil(total)
+                tipAmount = ceil(tipAmount)
+                perPerson = ceil(perPerson)
+            }) {
+                Text("Round Up")
+            }
         }
     }
 }
